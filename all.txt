@@ -1,0 +1,10 @@
+Network 
+  My Network: 10.0.1.0/27
+
+
+Name 	    Username	 Floating IP		  Private IP Address     Passwords
+A		        a		     89.42.140.53     10.0.1.6
+B		        b		     188.95.227.199   10.0.1.9
+C		        c		     89.42.140.177    10.0.1.8
+HAProxy	    ha		   89.42.140.97     10.0.1.5
+Bastion	    bast		 89.42.140.105    10.0.1.4
