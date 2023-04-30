@@ -7,5 +7,5 @@ Network
 devA		    ubuntu		  103.57.74.96		  10.0.1.6
 devB		    ubuntu		  91.123.202.68		  10.0.1.5
 devC		    ubuntu		  188.95.227.37		  10.0.1.7
-HAProxy	           ubuntu		    91.106.199.235	10.0.1.9
+HAProxy	           ubuntu		    91.106.199.235	10.0.1.9 
 Bastion	           ubuntu		      188.95.231.198    10.0.1.8
