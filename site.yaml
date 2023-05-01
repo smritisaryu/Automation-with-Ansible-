@@ -1,0 +1,26 @@
+######################## /etc/ansible/site.yaml##################################
+---
+- hosts: all
+  gather_facts: yes
+
+- name:  Configuring the HAproxy
+  hosts: HAproxy
+  become: yes
+  tasks:
+    - name: installing haproxy
+      apt:
+        name: haproxy
+        update_cache: yes
+        state: latest
+
+    - name: haproxy configuration to use as load balancer
+      template:
+        path: /etc/haproxy/haproxy.cfg
+
+    - name: haproxy restart
+      service:
+        name: "haproxy"
+        state: restarted
+
+#- names:  Webserver deployement
+~                                  
