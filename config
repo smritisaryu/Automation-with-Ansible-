@@ -1,30 +1,29 @@
 
 #############  ~/.ssh/config #############33
 
-Host bastion
-        Hostname 188.95.231.198
+Host bastionNSO
+        Hostname 91.106.198.235
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
 
 Host HAproxy
-         Hostname 91.106.199.235
+         Hostname 91.106.198.245
          User ubuntu
          IdentityFile ~/.ssh/id_rsa
 
 Host devA
-          Hostname 10.0.1.6
+          Hostname 10.0.1.10
           User ubuntu
-          ProxyJump bastion
+          ProxyJump bastionNSO
           IdentityFile ~/.ssh/id_rsa
 
 Host devB
-          Hostname 10.0.1.4
+          Hostname 10.0.1.7
           User ubuntu
-          ProxyJump bastion
+          ProxyJump bastionNSO
           IdentityFile ~/.ssh/id_rsa
 
 Host devC
-          Hostname 10.0.1.7
+          Hostname 10.0.1.8
           User ubuntu
-          ProxyJump bastion
-          IdentityFile ~/.ssh/id_rsa
+          ProxyJump bastionNSO
