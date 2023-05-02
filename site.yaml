@@ -51,7 +51,18 @@
       pip:
         name: Flask
         virtualenv: /home/ubuntu/flask-app/venv
+    - name: Copy flask app to remote server
+      become: yes
+      copy:
+        src: /app.py
+        dest: /home/ubuntu/flask-app/venv
 
+    - name: Start flask app
+      become: yes
+      shell: |
+        cd /home/ubuntu/flask-app/
+        source venv/bin/activate
+        nohup python3 app.py &
 
                                                                                                       53,19         Bot
 
