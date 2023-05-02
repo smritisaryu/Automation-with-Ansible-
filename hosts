@@ -1,11 +1,11 @@
-[HAproxy]  
-HAproxy  
- 
-[webservers]  
-devA  
-devB  
-devC  
- 
-[all:vars]  
-ansible_user=ubuntu  
-##REMOVED sshkey entry, handled by external SSH config file ## 
+[HAproxy]
+HAproxy ansible_host=91.106.198.245 ansible_user=ubuntu
+
+[webservers]
+devA ansible_host=89.42.140.38 ansible_user=ubuntu
+devB ansible_host=89.42.140.242 ansible_user=ubuntu
+devC ansible_host=91.106.198.171 ansible_user=ubuntu
+
+[all:vars]
+ansible_user=ubuntu
+##REMOVED sshkey entry, handled by external SSH config file ##
