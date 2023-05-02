@@ -1,26 +1,59 @@
 ######################## /etc/ansible/site.yaml##################################
 ---
-- hosts: all
-  gather_facts: yes
-
-- name:  Configuring the HAproxy
-  hosts: HAproxy
-  become: yes
+- hosts: HAproxy
+  become: true
   tasks:
-    - name: installing haproxy
+    - name: Install HAProxy
       apt:
         name: haproxy
-        update_cache: yes
         state: latest
 
-    - name: haproxy configuration to use as load balancer
-      template:
-        path: /etc/haproxy/haproxy.cfg
+    - name: Configure HAProxy
+      copy:
+        src: /haproxy.cfg
+        dest: /etc/haproxy/haproxy.cfg
+      notify:
+        - Restart HAProxy
 
-    - name: haproxy restart
+    - name: Start HAProxy
       service:
-        name: "haproxy"
+        name: haproxy
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart HAProxy
+      service:
+        name: haproxy
         state: restarted
 
-#- names:  Webserver deployement
-~                                  
+- name: Create Flask App directory and virtual environment
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Create Flask App directory
+      file:
+        path: /home/ubuntu/flask-app
+        state: directory
+
+    - name: Create virtual environment
+      command: python3 -m venv /home/ubuntu/flask-app/venv
+      become: yes
+      args:
+        chdir: /home/flask-app
+
+    - name: Activate virtual environment
+      command: /bin/bash -c "source /home/flask-app/venv/bin/activate"
+      args:
+        chdir: /home/ubuntu/flask-app
+
+    - name: Install Flask
+      pip:
+        name: Flask
+        virtualenv: /home/ubuntu/flask-app/venv
+
+
+                                                                                                      53,19         Bot
+
+                                                                                                      53,19         Bot
+                                                                                                      1,3           Top
