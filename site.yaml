@@ -64,7 +64,4 @@
         source venv/bin/activate
         nohup python3 app.py &
 
-                                                                                                      53,19         Bot
-
-                                                                                                      53,19         Bot
-                                                                                                      1,3           Top
+                                                                                                     
