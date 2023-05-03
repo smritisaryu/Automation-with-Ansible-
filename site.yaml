@@ -40,7 +40,7 @@
       command: python3 -m venv /home/ubuntu/flask-app/venv
       become: yes
       args:
-        chdir: /home/flask-app
+        chdir: /home/ubuntu/flask-app
 
     - name: Activate virtual environment
       command: /bin/bash -c "source /home/flask-app/venv/bin/activate"
