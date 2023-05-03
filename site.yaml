@@ -43,7 +43,7 @@
         chdir: /home/ubuntu/flask-app
 
     - name: Activate virtual environment
-      command: /bin/bash -c "source /home/flask-app/venv/bin/activate"
+      shell: . /home/ubuntu/flask-app/venv/bin/activate
       args:
         chdir: /home/ubuntu/flask-app
 
@@ -64,4 +64,6 @@
         source venv/bin/activate
         nohup python3 app.py &
 
-                                                                                                     
+     
+     #########################
+     
