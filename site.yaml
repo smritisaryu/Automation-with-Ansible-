@@ -30,16 +30,12 @@
         name:
           - python3-venv
         state: present
+        
     - name: Create virtual environment directory
-      file:
-        path: /home/ubuntu/flask-app/venv
-        state: directory
-        mode: '0755'
+      shell: python3 -m venv /home/ubuntu/flask-app/venv
 
     - name: Set up virtual environment
-      pip:
-        name: Flask
-        virtualenv: /home/ubuntu/flask-app/venv
+      shell: python3 -m venv /home/ubuntu/flask-app/venv
 
     - name: Set permissions for virtual environment directory
       become: yes
