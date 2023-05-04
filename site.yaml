@@ -1,69 +1,104 @@
-######################## /etc/ansible/site.yaml##################################
----
-- hosts: HAproxy
-  become: true
-  tasks:
-    - name: Install HAProxy
-      apt:
-        name: haproxy
-        state: latest
-
-    - name: Configure HAProxy
-      copy:
-        src: haproxy.cfg.j2
-        dest: /etc/haproxy/haproxy.cfg
-      notify:
-        - Restart HAProxy
-
-    - name: Start HAProxy
-      service:
-        name: haproxy
-        state: started
-        enabled: true
-
-  handlers:
-    - name: Restart HAProxy
-      service:
-        name: haproxy
-        state: restarted
-
-- name: Create Flask App directory and virtual environment
+- hosts: all
+  gather_facts: yes
+- name: Configure Flask Web Server
   hosts: webservers
   become: true
   tasks:
-    - name: Create Flask App directory
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Python3, pip3, and venv
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+        state: present
+
+    - name: Create Flask app directory
       file:
         path: /home/ubuntu/flask-app
         state: directory
 
-    - name: Create virtual environment
-      command: python3 -m venv /home/ubuntu/flask-app/venv
-      become: yes
-      args:
-        chdir: /home/ubuntu/flask-app
+    - name: Change directory to Flask app directory
+      shell: cd /home/ubuntu/flask-app
 
-    - name: Activate virtual environment
-      shell: . /home/ubuntu/flask-app/venv/bin/activate
-      args:
-        chdir: /home/ubuntu/flask-app
+    - name: Create virtual environment directory
+      file:
+        path: /home/ubuntu/flask-app/venv
+        state: directory
+        mode: '0755'
 
-    - name: Install Flask
+    - name: Set up virtual environment
       pip:
         name: Flask
         virtualenv: /home/ubuntu/flask-app/venv
-    - name: Copy flask app to remote server
-      become: yes
+
+    - name: Set permissions for virtual environment directory
+          become: yes
+      become_user: root
+      file:
+        path: /home/ubuntu/flask-app/venv
+        mode: '0755'
+        recurse: yes
+
+    - name: Install Flask
+      shell: pip3 install Flask
+
+    - name: Copy Flask app file
       copy:
         src: app.py
-        dest: /home/ubuntu/flask-app/venv
+        dest: /home/ubuntu/flask-app/venv/app.py
 
-    - name: Start flask app
+    - name: Start Flask app
+      copy:
+       dest: /etc/systemd/system/flask-app.service
+       content: |
+         [Unit]
+         Description=Flask App Service
+
+         [Service]
+         User=ubuntu
+         Environment=FLASK_APP=/home/ubuntu/flask-app/venv/app.py
+         Environment=FLASK_ENV=development
+         Environment=FLASK_RUN_HOST={{ ansible_default_ipv4.address }}
+         Environment=FLASK_RUN_PORT=5000
+         WorkingDirectory=/home/ubuntu/flask-app/venv
+         ExecStart=/home/ubuntu/flask-app/venv/bin/flask run
+         Restart=always
+
+         [Install]
+         WantedBy=multi-user.target
+
+- name: Configure HAProxy Load Balancer
+  hosts: HAproxy
+  become: true
+  tasks:
+    - name: Pre-commands
       become: yes
       shell: |
-        cd /home/ubuntu/flask-app/
-        source venv/bin/activate
-        nohup python3 app.py &
+        sudo apt update
+        sudo apt install software-properties-common
+        sudo add-apt-repository ppa:vbernat/haproxy-2.6 -y
+        sudo apt update
+        sudo apt install haproxy -y
+- name: Generate HAProxy configuration
+  hosts: HAproxy
+  become: yes
+  tasks:
+    - name: Get backend server IPs
+      set_fact:
+         backend_servers: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
 
-     
-     #########################
-     
+    - name: Generate HAProxy configuration file
+      copy:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+        mode: "0644"
+
+     # vars:
+      #  backend_ips: "{{ backend_ips.stdout }}"
+    - name: Restart
+      shell: sudo systemctl restart haproxy
+         
