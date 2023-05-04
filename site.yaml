@@ -21,15 +21,15 @@
       file:
         path: /home/ubuntu/flask-app
         state: directory
- 
+
     - name: Change directory to Flask app directory
       shell: cd /home/ubuntu/flask-app
-      
+
     - name: Install venv
       apt:
         name:
           - python3-venv
-        state: present    
+        state: present
     - name: Create virtual environment directory
       file:
         path: /home/ubuntu/flask-app/venv
@@ -103,6 +103,5 @@
 
     - name: Restart
       shell: sudo systemctl restart haproxy
-
-
-
+                                                                                        
+                                        
