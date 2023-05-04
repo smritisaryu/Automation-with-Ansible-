@@ -54,7 +54,7 @@
     - name: Copy flask app to remote server
       become: yes
       copy:
-        src: /app.py
+        src: app.py
         dest: /home/ubuntu/flask-app/venv
 
     - name: Start flask app
