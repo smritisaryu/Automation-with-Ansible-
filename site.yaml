@@ -1,5 +1,6 @@
 - hosts: all
   gather_facts: yes
+
 - name: Configure Flask Web Server
   hosts: webservers
   become: true
@@ -36,7 +37,7 @@
         virtualenv: /home/ubuntu/flask-app/venv
 
     - name: Set permissions for virtual environment directory
-          become: yes
+      become: yes
       become_user: root
       file:
         path: /home/ubuntu/flask-app/venv
@@ -53,23 +54,23 @@
 
     - name: Start Flask app
       copy:
-       dest: /etc/systemd/system/flask-app.service
-       content: |
-         [Unit]
-         Description=Flask App Service
+        dest: /etc/systemd/system/flask-app.service
+        content: |
+          [Unit]
+          Description=Flask App Service
 
-         [Service]
-         User=ubuntu
-         Environment=FLASK_APP=/home/ubuntu/flask-app/venv/app.py
-         Environment=FLASK_ENV=development
-         Environment=FLASK_RUN_HOST={{ ansible_default_ipv4.address }}
-         Environment=FLASK_RUN_PORT=5000
-         WorkingDirectory=/home/ubuntu/flask-app/venv
-         ExecStart=/home/ubuntu/flask-app/venv/bin/flask run
-         Restart=always
+          [Service]
+          User=ubuntu
+          Environment=FLASK_APP=/home/ubuntu/flask-app/venv/app.py
+          Environment=FLASK_ENV=development
+          Environment=FLASK_RUN_HOST={{ ansible_default_ipv4.address }}
+          Environment=FLASK_RUN_PORT=5000
+          WorkingDirectory=/home/ubuntu/flask-app/venv
+          ExecStart=/home/ubuntu/flask-app/venv/bin/flask run
+          Restart=always
 
-         [Install]
-         WantedBy=multi-user.target
+          [Install]
+          WantedBy=multi-user.target
 
 - name: Configure HAProxy Load Balancer
   hosts: HAproxy
@@ -83,13 +84,14 @@
         sudo add-apt-repository ppa:vbernat/haproxy-2.6 -y
         sudo apt update
         sudo apt install haproxy -y
+
 - name: Generate HAProxy configuration
   hosts: HAproxy
   become: yes
   tasks:
     - name: Get backend server IPs
       set_fact:
-         backend_servers: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
+        backend_servers: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
 
     - name: Generate HAProxy configuration file
       copy:
@@ -97,8 +99,8 @@
         dest: /etc/haproxy/haproxy.cfg
         mode: "0644"
 
-     # vars:
-      #  backend_ips: "{{ backend_ips.stdout }}"
     - name: Restart
       shell: sudo systemctl restart haproxy
-         
+
+
+
