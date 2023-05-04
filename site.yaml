@@ -21,10 +21,15 @@
       file:
         path: /home/ubuntu/flask-app
         state: directory
-
+ 
     - name: Change directory to Flask app directory
       shell: cd /home/ubuntu/flask-app
-
+      
+    - name: Install venv
+      apt:
+        name:
+          - python3-venv
+        state: present    
     - name: Create virtual environment directory
       file:
         path: /home/ubuntu/flask-app/venv
@@ -80,21 +85,18 @@
       become: yes
       shell: |
         sudo apt update
-        sudo apt install software-properties-common
-        sudo add-apt-repository ppa:vbernat/haproxy-2.6 -y
-        sudo apt update
         sudo apt install haproxy -y
 
 - name: Generate HAProxy configuration
   hosts: HAproxy
   become: yes
   tasks:
-    - name: Get backend server IPs
-      set_fact:
-        backend_servers: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
+    #- name: Get backend server IPs
+     # set_fact:
+      #  backend_servers: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
 
     - name: Generate HAProxy configuration file
-      copy:
+      template:
         src: haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
         mode: "0644"
