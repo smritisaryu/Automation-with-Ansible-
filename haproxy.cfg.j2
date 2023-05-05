@@ -33,14 +33,16 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-frontend haproxy_web
+#HAproxy for web servers
+frontend web-frontend
         bind *:80
         mode http
-        default_backend web_back
+        default_backend web-backend
+
 backend web-backend
         balance roundrobin
         mode http
         option forwardfor
-     {% for host in groups["webservers"] %}
-        server {{ host }} {{ hostvars[host]["ansible_default_ipv4"]["address"] }}:5000 check
-     {% endfor %}
+{% for hosts in groups['webservers'] %}
+   server app{{ loop.index }} {{hosts }}:5000 check
+{% endfor %}
