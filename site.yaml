@@ -1,5 +1,23 @@
-- hosts: all
-  gather_facts: yes
+- hosts: HAproxy
+  become: yes
+  tasks:
+          - name: "Installing haproxy"
+            package:
+                    name: "haproxy"
+                    state: present
+
+
+          - name: "Copying configuration file"
+            template:
+                    src: "haproxy.cfg.j2"
+                    dest: "/etc/haproxy/haproxy.cfg"
+
+
+          - name: "starting haproxy services"
+            service:
+                    name: "haproxy"
+                    state: started
+
 
 - name: Configure Flask Web Server
   hosts: webservers
@@ -30,7 +48,7 @@
         name:
           - python3-venv
         state: present
-        
+
     - name: Create virtual environment directory
       shell: python3 -m venv /home/ubuntu/flask-app/venv
 
@@ -73,31 +91,11 @@
           [Install]
           WantedBy=multi-user.target
 
-- name: Configure HAProxy Load Balancer
-  hosts: HAproxy
-  become: true
-  tasks:
-    - name: Pre-commands
-      become: yes
-      shell: |
-        sudo apt update
-        sudo apt install haproxy -y
-
-- name: Generate HAProxy configuration
-  hosts: HAproxy
+- hosts: HAproxy
   become: yes
   tasks:
-    #- name: Get backend server IPs
-     # set_fact:
-      #  backend_servers: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
 
-    - name: Generate HAProxy configuration file
-      template:
-        src: haproxy.cfg.j2
-        dest: /etc/haproxy/haproxy.cfg
-        mode: "0644"
-
-    - name: Restart
-      shell: sudo systemctl restart haproxy
-                                                                                        
-                                        
+          - name: "starting haproxy services"
+            service:
+                    name: "haproxy"
+                    state: started
