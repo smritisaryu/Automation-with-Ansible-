@@ -90,19 +90,17 @@
 
           [Install]
           WantedBy=multi-user.target
-     - name: Reload systemd configuration
-       systemd:
-         daemon_reexec: yes
-       become: true
-
-     - name: Start Flask app service
-       systemd:
-         name: flask-app
-         state: started
-         enabled: yes
-
-     - name: restart flask-app
-       command: systemctl restart flask-app
+    - name: Reload systemd configuration
+      systemd:
+        daemon_reexec: yes
+      become: true
+    - name: Start Flask app service
+      systemd:
+        name: flask-app
+        state: started
+        enabled: yes
+    - name: restart flask-app
+      command: systemctl restart flask-app
 
 - hosts: HAproxy
   become: yes
