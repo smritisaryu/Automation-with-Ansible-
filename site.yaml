@@ -1,3 +1,12 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+        - name: "Update Cache"
+          apt:
+              update_cache: yes
+
 - hosts: HAproxy
   become: yes
   tasks:
@@ -27,81 +36,25 @@
       apt:
         update_cache: yes
 
-    - name: Install Python3, pip3, and venv
+    - name: Install pip3
       apt:
-        name:
-          - python3
-          - python3-pip
-          - python3-venv
+        name: python3-pip
         state: present
+        update_cache: true
 
-    - name: Create Flask app directory
-      file:
-        path: /home/ubuntu/flask-app
-        state: directory
-
-    - name: Change directory to Flask app directory
-      shell: cd /home/ubuntu/flask-app
-
-    - name: Install venv
+    - name: Install Gunicorn
       apt:
-        name:
-          - python3-venv
-        state: present
+        name: gunicorn
 
-    - name: Create virtual environment directory
-      shell: python3 -m venv /home/ubuntu/flask-app/venv
-
-    - name: Set up virtual environment
-      shell: python3 -m venv /home/ubuntu/flask-app/venv
-
-    - name: Set permissions for virtual environment directory
-      become: yes
-      become_user: root
-      file:
-        path: /home/ubuntu/flask-app/venv
-        mode: '0755'
-        recurse: yes
-
-    - name: Install Flask
-      shell: pip3 install Flask
-
-    - name: Copy Flask app file
+    - name: Copy Python file to app.py
       copy:
-        src: app.py
-        dest: /home/ubuntu/flask-app/venv/app.py
+         src: /$PWD/app1.py
+         dest: /home/ubuntu/app1.py
+         owner: ubuntu
+         mode: '0644'
 
-    - name: Start Flask app
-      copy:
-        dest: /etc/systemd/system/flask-app.service
-        content: |
-          [Unit]
-          Description=Flask App Service
-
-          [Service]
-          User=ubuntu
-          Environment=FLASK_APP=/home/ubuntu/flask-app/venv/app.py
-          Environment=FLASK_ENV=development
-          Environment=FLASK_RUN_HOST={{ ansible_default_ipv4.address }}
-          Environment=FLASK_RUN_PORT=5000
-          WorkingDirectory=/home/ubuntu/flask-app/venv
-          ExecStart=/home/ubuntu/flask-app/venv/bin/flask run
-          Restart=always
-
-          [Install]
-          WantedBy=multi-user.target
-    - name: Reload systemd configuration
-      systemd:
-        daemon_reexec: yes
-      become: true
-    - name: Start Flask app service
-      systemd:
-        name: flask-app
-        state: started
-        enabled: yes
-    - name: restart flask-app
-      command: systemctl restart flask-app
-
+    - name: Run Flask app
+      shell: gunicorn -w 2 -D -b 0.0.0.0:8000 app1:app
 - hosts: HAproxy
   become: yes
   tasks:
