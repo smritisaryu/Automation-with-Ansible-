@@ -42,6 +42,12 @@
         state: present
         update_cache: true
 
+    - name: Installing Flask
+      pip:
+         executable: pip3
+         name: flask
+         state: latest
+
     - name: Install Gunicorn
       apt:
         name: gunicorn
