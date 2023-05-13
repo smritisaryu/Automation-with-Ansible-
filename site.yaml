@@ -1,31 +1,12 @@
 ---
 - hosts: all
+  become: true
+  become_method: sudo
   gather_facts: yes
-  become: yes
   tasks:
         - name: "Update Cache"
           apt:
               update_cache: yes
-
-- hosts: HAproxy
-  become: yes
-  tasks:
-          - name: "Installing haproxy"
-            package:
-                    name: "haproxy"
-                    state: present
-
-
-          - name: "Copying configuration file"
-            template:
-                    src: "haproxy.cfg.j2"
-                    dest: "/etc/haproxy/haproxy.cfg"
-
-
-          - name: "starting haproxy services"
-            service:
-                    name: "haproxy"
-                    state: started
 
 
 - name: Configure Flask Web Server
@@ -48,7 +29,7 @@
          name: flask
          state: latest
 
-    - name: Install Gunicorn
+    - name: Serve Flask App - pre-fork worker model
       apt:
         name: gunicorn
 
@@ -61,11 +42,27 @@
 
     - name: Run Flask app
       shell: gunicorn -w 2 -D -b 0.0.0.0:8000 app1:app
+
 - hosts: HAproxy
   become: yes
   tasks:
+          - name: Update cache
+            apt:
+                   update_cache: yes
 
-          - name: "starting haproxy services"
+          - name: "Installing haproxy"
+            package:
+                    name: haproxy
+                    state: present
+
+
+          - name: "Copying configuration file"
+            template:
+                    src: /$PWD/haproxy.cfg.j2
+                    dest: /etc/haproxy/haproxy.cfg
+
+
+          - name: "restarting haproxy services"
             service:
                     name: "haproxy"
-                    state: started
+                    state: restarted
