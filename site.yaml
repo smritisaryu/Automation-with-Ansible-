@@ -9,7 +9,7 @@
               update_cache: yes
 
 
-- name: Configure Flask Web Server
+- name: Configure Backend Web Servers
   hosts: webservers
   become: true
   tasks:
