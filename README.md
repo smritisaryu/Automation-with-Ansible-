@@ -6,3 +6,8 @@ Keywords - Flask app, HAProxy, Bastion, SSH, Ansible-playbook, YAML, Python
 
 "haproxy.cfg.j2" -- it is the configuration file of haproxy using jinja2 template for it to communicate with ansible-playbook for loadbalancing
 "hosts" -- this file has all hosts specified that are part of the development network
+
+
+# Provoked by
+
+ansible-playbook -i hosts site.yaml
